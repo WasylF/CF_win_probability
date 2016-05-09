@@ -83,6 +83,30 @@ public class CodeForcesAPI {
     }
 
     /**
+     *
+     * @param userHandle user's handle on codeforces
+     * @return number of contests that {@code userHandle} have particapated
+     */
+    public static int getContestNumber(String userHandle) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(API_DELAY_MS);
+            JSONObject obj = JsonReader.read("http://codeforces.com/api/user.rating?handle=" + userHandle);
+
+            if (obj != null && obj.getString("status").equals("OK")) {
+                JSONArray array = obj.getJSONArray("result");
+                int contestNumber = array.length();
+                return contestNumber;
+            }
+        } catch (InterruptedException | IOException | JSONException ex) {
+            System.err.println("Failed get contests number for user: " + userHandle);
+            System.err.println(ex.getMessage());
+            return 0;
+        }
+
+        return 0;
+    }
+
+    /**
      * get users rank and rating by contestId.
      *
      * If get any Exception, return empty list.
@@ -91,6 +115,20 @@ public class CodeForcesAPI {
      * @return ArrayList<Pair<user rank in contest, user rating before contest>>
      */
     public static ArrayList<Pair<Integer, Integer>> getContestResults(int contestId) {
+        return getContestResults(contestId, 0);
+    }
+
+    /**
+     * get users rank and rating by contestId.
+     *
+     * If get any Exception, return empty list.
+     *
+     * @param contestId contestId (!!!not number of cf round)
+     * @param minParticipationNumb minimum number of contests that user should
+     * particapated
+     * @return ArrayList<Pair<user rank in contest, user rating before contest>>
+     */
+    public static ArrayList<Pair<Integer, Integer>> getContestResults(int contestId, int minParticipationNumb) {
         ArrayList<Pair<Integer, Integer>> results = new ArrayList<>();
 
         try {
@@ -104,8 +142,10 @@ public class CodeForcesAPI {
             int l = array.length();
             for (int i = 0; i < l; i++) {
                 JSONObject user = (JSONObject) array.get(i);
-                Pair<Integer, Integer> pair = new Pair<>(user.getInt("rank"), user.getInt("oldRating"));
-                results.add(pair);
+                if (getContestNumber(user.getString("handle")) > minParticipationNumb) {
+                    Pair<Integer, Integer> pair = new Pair<>(user.getInt("rank"), user.getInt("oldRating"));
+                    results.add(pair);
+                }
             }
         } catch (Exception ex) {
             System.err.println("Failed get contest results! contestId: " + contestId);
