@@ -34,8 +34,12 @@ public class CalcWinProbability {
     }
 
     public void calulateProbability() {
+        calulateProbability(0);
+    }
+
+    public void calulateProbability(int minContestNumber) {
         for (int contestId : contestIds) {
-            addToStatistic(CodeForcesAPI.getContestResults(contestId));
+            addToStatistic(CodeForcesAPI.getContestResults(contestId, minContestNumber));
         }
     }
 
