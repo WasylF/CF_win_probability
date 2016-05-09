@@ -3,6 +3,8 @@ package wsl_f.cf_win_probability;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,19 +17,25 @@ import org.json.JSONObject;
 public class CodeForcesAPI {
 
     /**
+     * delay before send request to codeforces. Value in milliseconds.
+     */
+    final static int API_DELAY_MS = 250;
+
+    /**
      *
      * @param contestId codeforces contest id (!!! not equals cf round number)
      * @return rating changes
      */
     public static JSONObject getRatingChanges(int contestId) {
         try {
+            TimeUnit.MILLISECONDS.sleep(API_DELAY_MS);
             JSONObject obj = JsonReader.read("http://codeforces.com/api/contest.ratingChanges?contestId=" + contestId);
             if (obj != null) {
                 if (obj.getString("status").equals("OK")) {
                     return obj;
                 }
             }
-        } catch (IOException | JSONException exception) {
+        } catch (InterruptedException | IOException | JSONException exception) {
             System.err.println("Failed contestId: " + contestId);
             System.err.println(exception.getMessage());
         }
@@ -47,7 +55,7 @@ public class CodeForcesAPI {
         ArrayList<Integer> contestsIds = new ArrayList<>();
         String goodEnd = "(Div. " + division + ")";
         try {
-            TimeUnit.MILLISECONDS.sleep(250); // 1/4 sec
+            TimeUnit.MILLISECONDS.sleep(API_DELAY_MS);
             JSONObject obj = JsonReader.read("http://codeforces.com/api/contest.list?gym=false");
 
             if (obj != null && obj.getString("status").equals("OK")) {
