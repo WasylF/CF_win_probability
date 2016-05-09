@@ -142,7 +142,7 @@ public class CodeForcesAPI {
             int l = array.length();
             for (int i = 0; i < l; i++) {
                 JSONObject user = (JSONObject) array.get(i);
-                if (getContestNumber(user.getString("handle")) > minParticipationNumb) {
+                if (getContestNumber(user.getString("handle")) >= minParticipationNumb) {
                     Pair<Integer, Integer> pair = new Pair<>(user.getInt("rank"), user.getInt("oldRating"));
                     results.add(pair);
                 }
